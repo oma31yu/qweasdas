@@ -1,0 +1,46 @@
+define('common/analytics/sdk-tracker-service', [], function () {
+    'use strict';
+
+    var sdkTrackerService = {
+        initialized: false,
+
+        /**
+         * Method initializes SDK Tracker.
+         *
+         * @param {Object} settings - object with settings for initialization of SDK script
+         * @private
+         */
+        init: function (settings) {
+            console.log('some SDK initialization', settings);
+
+            sdkTrackerService.initialized = true;
+        },
+
+        /**
+         * Method sends hit to SDK Tracker.
+         *
+         * @param {Object} settings
+         * @private
+         */
+        send: function (settings) {
+            console.log('sending SDK hit', settings);
+        },
+
+        /**
+         * Method sets dimensions for SDK Tracker.
+         *
+         * NOTE:
+         *  In SDK custom dimensions are called properties.
+         *
+         * @param {Object} dimensions - PROPERTIES to set to SDK Tracker
+         * @private
+         */
+        setDimensions: function (dimensions) {
+            if (sdkTrackerService.initialized) {
+                console.log('some SDK properties', dimensions);
+            }
+        }
+    };
+
+    return sdkTrackerService;
+});

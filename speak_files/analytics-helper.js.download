@@ -1,0 +1,113 @@
+define('common/analytics/analytics-helper', function () {
+    "use strict";
+
+    return {
+        /**
+         * Finds the label with 'data-analytics-text' attribute in the header menu.
+         * @returns {string|null} The value of the 'data-analytics-text' attribute or null if not found.
+         */
+        findLabel: function () {
+            var label = document.querySelector('#headerMenu .current a');
+            if (label) {
+                return label.getAttribute('data-analytics-text');
+            }
+        },
+
+        /**
+         * Gets the current time in analytics-friendly format.
+         * @returns {Object} An object containing 'transaction_local_dt' and 'transaction_dt' properties.
+         */
+        getAnalyticsTime: function () {
+            var localDt = new Date();
+            var transaction_local_dt = localDt.getFullYear() + '-'
+                + ('00' + (localDt.getMonth() + 1)).slice(-2) + '-'
+                + ('00' + localDt.getDate()).slice(-2) + 'T'
+                + ('00' + localDt.getHours()).slice(-2) + ':'
+                + ('00' + localDt.getMinutes()).slice(-2) + ':'
+                + ('00' + localDt.getSeconds()).slice(-2) + '.'
+                + ('000' + localDt.getMilliseconds()).slice(-3);
+
+            return {
+                transaction_local_dt: transaction_local_dt,
+                transaction_dt: localDt.toISOString(),
+            };
+
+        },
+
+        /**
+         * Generates a UUIDv4.
+         * @returns {string} A UUIDv4 string.
+         */
+        uuidv4: function () {
+            var arr, i;
+            if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+                arr = window.crypto.getRandomValues(new Uint8Array(16));
+            } else {
+                arr = [];
+                for (i = 0; i < 16; i++) {
+                    arr.push(Math.floor(Math.random() * 256));
+                }
+            }
+
+            arr[6] = (arr[6] % 16 === 0) ? (arr[6] + 64) : (arr[6] % 16);
+            arr[8] = (arr[8] % 64 === 0) ? (arr[8] + 128) : (arr[8] % 64);
+
+            var uuid = '';
+            for (i = 0; i < arr.length; i++) {
+                var byte = arr[i];
+                if (i === 6) {
+                    byte = (byte % 16 === 0) ? (byte + 64) : (byte % 16);
+                } else if (i === 8) {
+                    byte = (byte % 64 === 0) ? (byte + 128) : (byte % 64);
+                }
+                uuid += ("0" + byte.toString(16)).slice(-2);
+            }
+
+            return uuid.match(/.{1,8}/g).join('-');
+        },
+
+        /**
+         * Converts various representations of boolean values to a numeric format.
+         * @param {*} value - The value to be converted to a numeric boolean representation.
+         * @returns {string} The numeric representation (0 or 1) or null for invalid values.
+         */
+        convertBooleanValuesToString: function (value) {
+            if (typeof value === 'string' && (value === '0' || value === '1')) {
+                return value === '1' ? '1' : '0';
+            }
+
+            switch (typeof value) {
+                case 'boolean':
+                    return value ? '1' : '0';
+                case 'string':
+                    const lowerValue = value.toLowerCase();
+                    switch (lowerValue) {
+                        case 'true':
+                            return '1';
+                        case 'false':
+                            return '0';
+                        default:
+                            return '0';
+                    }
+                case 'number':
+                    return value === 0 ? '0' : '1';
+                default:
+                    return '0';
+            }
+        },
+
+        isEmptyObject: function (obj) {
+            // Check if it is an object and not null
+            if (obj && typeof obj === 'object') {
+                // Check if the object has any own properties
+                for (var prop in obj) {
+                    if (obj.hasOwnProperty(prop)) {
+                        return false; // Return false if any own property is found
+                    }
+                }
+                return true; // Return true if no own properties are found
+            }
+            return true; // Return true if it's not an object or it's null
+        }
+    };
+});

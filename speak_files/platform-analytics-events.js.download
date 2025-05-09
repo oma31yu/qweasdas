@@ -1,0 +1,134 @@
+/**
+ * Platform Wide Specific Analytics Events.
+ */
+define('platform/platform-analytics-events', ['jquery', 'common/analytics/analytics-helper'], function ($, AnalyticsHelper) {
+    'use strict';
+
+    return [
+        // Location: Platform
+        // Part: Main nav
+        {
+            action: function (event, element) {
+                return "navigationInteraction > " + $(element).data("analyticsText");
+            },
+            category: "navigationInteraction",
+            target: "#headerMenu > li > a",
+            type: "click",
+            label: AnalyticsHelper.findLabel
+        },
+
+        // Location: Platform
+        // Part: Language change
+        {
+            action: function (event, element) {
+                return "navigationInteraction > languageChange > " + element.innerHTML;
+            },
+            category: "navigationInteraction",
+            target: '#langHolder_chzn .chzn-results > li',
+            type: "click",
+            label: AnalyticsHelper.findLabel
+        },
+
+        // Location: Platform
+        // Part: Help link and sign out link
+        {
+            action: function (event, element) {
+                return "navigationInteraction > " + $(element).data("analyticsText");
+            },
+            category: "navigationInteraction",
+            target: ".header-controls a",
+            type: "click",
+            label: AnalyticsHelper.findLabel
+        },
+
+        // Location: Platform
+        // Part: Seats license assignment
+        {
+            action: function (event, element) {
+                this.studentId = element.getAttribute("data-student-id");
+                return "productAccessRedemption > seatsLicence";
+            },
+            category: "productAccessRedemption",
+            target: ".assign_license",
+            type: "click",
+            label: AnalyticsHelper.findLabel,
+            studentId: '',
+            customDimension: function () {
+                return {
+                    "dimension90": this.studentId,
+                    "dimension200": 'assign'
+                };
+            }
+        },
+
+        // Location: Platform
+        // Part: Seats license removal
+        {
+            action: function (event, element) {
+                this.studentId = element.getAttribute("data-student-id");
+                return "productAccessRedemption > seatsLicence";
+            },
+            category: "productAccessRedemption",
+            target: ".remove_license",
+            type: "click",
+            label: AnalyticsHelper.findLabel,
+            studentId: '',
+            customDimension: function () {
+                return {
+                    "dimension90": this.studentId,
+                    "dimension200": 'remove'
+                };
+            }
+        },
+
+        // Location: Platform
+        // Part: Seats license - automatically assignment
+        {
+            action: function (event, element) {
+                this.checkboxValue = element.checked;
+                return "productAccessRedemption > courseB2BModelSwitch";
+            },
+            checkboxValue: null,
+            category: "productAccessRedemption",
+            target: ".automatically-assign-license-checkbox",
+            type: "click",
+            label: AnalyticsHelper.findLabel,
+            customDimension: function () {
+                var ability = {
+                    true: "enable",
+                    false: "disable"
+                };
+                return {
+                    "dimension200": ability[this.checkboxValue],
+                };
+            }
+        },
+
+        {
+            action: "navigationInteraction > parents",
+            category: "navigationInteraction",
+            target: '.header-links .parent-app-integration-button',
+            type: "click",
+            label: AnalyticsHelper.findLabel
+        },
+
+        {
+            action: "navigationInteraction > submit platform feedback",
+            category: "navigationInteraction",
+            target: {
+                element: '.feedback-dialog #submit-feedback',
+                parent: 'body'
+            },
+            type: "click",
+            label: AnalyticsHelper.findLabel
+        },
+
+        {
+            action: "navigationInteraction > switchToMobileSite",
+            category: "navigationInteraction",
+            target: "#back-to-mobile",
+            type: "click",
+            label: "desktop"
+        }
+    ];
+});

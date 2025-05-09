@@ -1,0 +1,44 @@
+/**
+ * Activities Specific Analytics Events.
+ */
+define('platform/Activities/activities-analytics-events', [], function () {
+    'use strict';
+
+    return [
+        // Location: Activities
+        // Part: Activities
+        {
+            action: "interactionActivity > Remediation link",
+            category: "interactionActivity",
+            target: "#remediation",
+            type: "click",
+            label: "activity"
+        },
+        // Location: Activities
+        // Part: Activities Feedback button
+        {
+            action: "interactionItem > Feedback click",
+            category: "interactionItem",
+            target: ".buttonFeedback",
+            type: "click",
+            label: "activity"
+        },
+        {
+            action: "interactionActivity > submit",
+            category: "interactionActivity",
+            target: "#submitButton",
+            type: "click",
+            label: "activity"
+        },
+        {
+            action: "navigationInteraction > submit platform feedback",
+            category: "navigationInteraction",
+            target: {
+                element: '.feedback-dialog #submit-feedback',
+                parent: 'body'
+            },
+            type: "click",
+            label: "activity"
+        }
+    ];
+});

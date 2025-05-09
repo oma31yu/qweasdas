@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <title>Морин уралдаан</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    .game {
+      margin-top: 30px;
+    }
+
+    .dice {
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      background-color: orange;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .track {
+      position: relative;
+      width: 90%;
+      margin: 30px auto;
+      height: 120px;
+      border-left: 4px dotted #000;
+      border-right: 4px dotted #000;
+    }
+
+    .horse {
+      position: absolute;
+      width: 150px;
+      height: 30px;
+      text-align: left;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/70/Horse_icon.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: left center;
+      padding-left: 40px;
+      font-weight: bold;
+    }
+
+    #player1 {
+      top: 10px;
+      left: 0;
+    }
+
+    #player2 {
+      top: 60px;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <div class="dice">
+      <button onclick="rollDice()">ШАГАЙ ОРХИХ</button>
+    </div>
+
+    <div class="track">
+      <div id="player1" class="horse">ТОГЛОГЧ 1</div>
+      <div id="player2" class="horse">ТОГЛОГЧ 2</div>
+    </div>
+  </div>
+
+  <script>
+    let positions = [0, 0]; // Тоглогчдын байрлал (алхам)
+    const stepSize = 40; // Алхам бүрийн хэмжээ (px)
+    const maxSteps = 20; // Хэдэн алхамд барианд хүрэх вэ
+
+    function rollDice() {
+      const currentPlayer = Math.random() > 0.5 ? 0 : 1;
+      const step = Math.floor(Math.random() * 6) + 1;
+
+      positions[currentPlayer] += step;
+      if (positions[currentPlayer] > maxSteps) {
+        positions[currentPlayer] = maxSteps;
+      }
+
+      const playerId = currentPlayer === 0 ? 'player1' : 'player2';
+      const horse = document.getElementById(playerId);
+      horse.style.left = positions[currentPlayer] * stepSize + 'px';
+
+      if (positions[currentPlayer] >= maxSteps) {
+        alert(`Тоглогч ${currentPlayer + 1} ялав!`);
+        resetGame();
+      }
+    }
+
+    function resetGame() {
+      positions = [0, 0];
+      document.getElementById('player1').style.left = '0px';
+      document.getElementById('player2').style.left = '0px';
+    }
+  </script>
+</body>
+</html>

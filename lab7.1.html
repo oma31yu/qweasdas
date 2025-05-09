@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<!-- Main Container -->
+<div class="container-fluid vh-100 px-0">
+  <div class="row g-0 h-100">
+    <!-- Sidebar -->
+    <div class="col-auto position-fixed bg-white shadow-sm" style="width: 230px; height: 100vh; z-index: 1030;">
+      <!-- Sidebar Header -->
+      <div class="p-3 border-bottom">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-sm btn-light me-2">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h6 class="mb-0">DASHBOARDS</h6>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu with Scrollable Area -->
+      <div class="p-3 overflow-auto" style="height: calc(100vh - 60px);">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-primary bg-light rounded py-2 px-3 mb-2" href="#">
+              <i class="fas fa-chart-line me-2"></i>
+              <span>Analytics</span>
+              <span class="ms-auto small text-secondary">5+</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-calendar me-2"></i>
+              <span>                 
+                <button type="button" class="btn btn-aramark-primary" onclick="window.open('lab7.2.html')">contacts</button>
+              </span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-comment me-2"></i>
+              <span>                 
+                <button type="button" class="btn btn-aramark-primary" onclick="window.open('lab7.3.html')">projects</button>
+              </span>
+              <span class="badge bg-danger rounded-pill ms-auto">Hot</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-tasks me-2"></i>
+              <span>Kanban Board</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-folder me-2"></i>
+              <span>File Manager</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-envelope me-2"></i>
+              <span>Email</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-address-book me-2"></i>
+              <span>           
+              </span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-images me-2"></i>
+              <span>Gallery</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+              <i class="fas fa-project-diagram me-2"></i>
+              <span>Projects</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="mt-4">
+          <h6 class="text-uppercase small text-muted fw-bold">LAYOUTS</h6>
+          <ul class="nav flex-column mt-2">
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-grip-horizontal me-2"></i>
+                <span>Horizontal</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-uppercase small text-muted fw-bold">PAGES</h6>
+          <ul class="nav flex-column mt-2">
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-lock me-2"></i>
+                <span>Authentication</span>
+                <span class="badge bg-info rounded-pill ms-auto">7</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span>Error Pages</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-wrench me-2"></i>
+                <span>Utility</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-tag me-2"></i>
+                <span>Pricing</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-file-invoice me-2"></i>
+                <span>Invoices</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-stream me-2"></i>
+                <span>Timeline</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-uppercase small text-muted fw-bold">COMPONENTS</h6>
+          <ul class="nav flex-column mt-2">
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-puzzle-piece me-2"></i>
+                <span>UI Elements</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-expand-arrows-alt me-2"></i>
+                <span>Extended UI</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center text-secondary py-2 px-3 mb-2" href="#">
+                <i class="fas fa-cogs me-2"></i>
+                <span>Widgets</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col" style="margin-left: 230px;">
+      <!-- Header -->
+      <div class="bg-white shadow-sm py-2 px-3 mb-4 sticky-top">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <button class="btn btn-sm btn-light me-2" type="button">
+              <i class="fas fa-bars"></i>
+            </button>
+            <div class="dropdown me-2">
+              <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                Components
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">UI Elements</a></li>
+                <li><a class="dropdown-item" href="#">Extended UI</a></li>
+                <li><a class="dropdown-item" href="#">Widgets</a></li>
+              </ul>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                Categories
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Dashboards</a></li>
+                <li><a class="dropdown-item" href="#">Applications</a></li>
+                <li><a class="dropdown-item" href="#">Pages</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="d-flex align-items-center">
+            <div class="input-group me-3" style="max-width: 200px;">
+              <button class="btn btn-sm btn-light border-0" type="button">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <button class="btn btn-sm btn-light me-2">
+              <img src="https://flagcdn.com/w20/us.png" alt="US" height="15">
+            </button>
+            <button class="btn btn-sm btn-light me-2">
+              <i class="fas fa-th"></i>
+            </button>
+            <button class="btn btn-sm btn-light me-2 position-relative">
+              <i class="fas fa-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                3
+              </span>
+            </button>
+            <button class="btn btn-sm btn-light me-2">
+              <i class="fas fa-cog"></i>
+            </button>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User" class="rounded-circle me-2" width="32" height="32">
+                <div class="d-none d-md-block text-start">
+                  <div class="fw-bold">Kate Dudley</div>
+                  <div class="small text-muted">Administrator</div>
+                </div>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Logout</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area with Scrollable Area -->
+      <div class="container-fluid px-3 py-3">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Analytics</li>
+          </ol>
+        </nav>
+
+        <!-- Analytics Content -->
+        <div class="mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h3 class="mb-0">Analytics</h3>
+          </div>
+
+          <!-- Analytics Cards Row 1 -->
+          <div class="card mb-4 w-100">
+            <div class="card-body">
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <h5>Daily Active Users</h5>
+                  <div class="d-flex align-items-end">
+                    <div>
+                      <span class="text-muted">Total Visitors</span>
+                      <div class="d-flex align-items-center">
+                        <h2 class="mb-0 me-2">18.2 k</h2>
+                        <span class="badge bg-success text-white">+1.4 %</span>
+                      </div>
+                    </div>
+                    <div class="ms-auto text-end">
+                      <span class="text-muted">Sort By: <span class="fw-bold">Yearly <i class="fas fa-angle-down"></i></span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="row text-center">
+                    <div class="col-4">
+                      <div class="d-flex justify-content-center align-items-center">
+                        <div>
+                          <div class="rounded-circle bg-primary bg-opacity-25 p-3 d-inline-flex mb-2">
+                            <i class="fas fa-user text-primary"></i>
+                          </div>
+                          <div>
+                            <span class="text-muted">Users</span>
+                            <h6>2.2 k</h6>
+                            <span class="badge bg-success">+1.2 %</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="d-flex justify-content-center align-items-center">
+                        <div>
+                          <div class="rounded-circle bg-info bg-opacity-25 p-3 d-inline-flex mb-2">
+                            <i class="fas fa-clock text-info"></i>
+                          </div>
+                          <div>
+                            <span class="text-muted">Sessions</span>
+                            <h6>3.85 k</h6>
+                            <span class="badge bg-danger">-1.2 %</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="d-flex justify-content-center align-items-center">
+                        <div>
+                          <div class="rounded-circle bg-warning bg-opacity-25 p-3 d-inline-flex mb-2">
+                            <i class="fas fa-stopwatch text-warning"></i>
+                          </div>
+                          <div>
+                            <span class="text-muted">Session Duration</span>
+                            <h6>1 min</h6>
+                            <span class="badge bg-danger">-1.1 %</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-12 text-center">
+                      <div class="d-flex justify-content-center align-items-center">
+                        <div>
+                          <div class="rounded-circle bg-danger bg-opacity-25 p-3 d-inline-flex mb-2">
+                            <i class="fas fa-undo text-danger"></i>
+                          </div>
+                          <div>
+                            <span class="text-muted">Bounce Rate</span>
+                            <h6>24.03 %</h6>
+                            <span class="badge bg-success">+1.3 %</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chart -->
+              <div class="w-100" style="height: 250px;">
+                <canvas id="visitorsChart"></canvas>
+              </div>
+
+              <!-- User Activity Section -->
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <h5 class="d-flex justify-content-between align-items-center">
+                    User Activity
+                    <i class="fas fa-ellipsis-v text-muted"></i>
+                  </h5>
+                  <div class="btn-group mb-3" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">Previous Month</button>
+                    <button type="button" class="btn btn-sm btn-primary">This Month</button>
+                  </div>
+                  <div style="height: 200px;">
+                    <canvas id="userActivityChart"></canvas>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <h5 class="d-flex justify-content-between align-items-center">
+                    Traffic Source
+                    <i class="fas fa-ellipsis-v text-muted"></i>
+                  </h5>
+                  <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                      <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                          <span class="badge bg-primary me-2">#1</span>
+                          www.abc.com
+                        </div>
+                        <div>
+                          <span class="fw-bold">3.82 k</span>
+                          <span class="badge bg-success ms-2">+1.2 %</span>
+                        </div>
+                      </div>
+                      <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                          <span class="badge bg-primary me-2">#2</span>
+                          www.xyz.com
+                        </div>
+                        <div>
+                          <span class="fw-bold">3.04 k</span>
+                          <span class="badge bg-success ms-2">+1.1 %</span>
+                        </div>
+                      </div>
+                      <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                          <span class="badge bg-primary me-2">#3</span>
+                          www.abc123.com
+                        </div>
+                        <div>
+                          <span class="fw-bold">2.64 k</span>
+                          <span class="badge bg-success ms-2">+0.8 %</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Statistics Cards -->
+              <div class="row mt-4">
+                <div class="col-md-4">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title d-flex justify-content-between align-items-center">
+                        New Visitors
+                        <i class="fas fa-ellipsis-v text-muted"></i>
+                      </h5>
+                      <div class="d-flex align-items-center">
+                        <h2 class="mb-0 me-2">1.2 k</h2>
+                        <span class="badge bg-success">+0.3 %</span>
+                      </div>
+                      <div style="height: 100px;">
+                        <canvas id="newVisitorsChart"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title d-flex justify-content-between align-items-center">
+                        Visitors by Browser
+                        <i class="fas fa-ellipsis-v text-muted"></i>
+                      </h5>
+                      <div class="mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="fab fa-chrome text-primary me-2"></i>
+                          <span>Chrome</span>
+                          <div class="progress ms-auto flex-grow-1 mx-2" style="height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 82%"></div>
+                          </div>
+                          <span>82 %</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="fab fa-firefox text-primary me-2"></i>
+                          <span>Firefox</span>
+                          <div class="progress ms-auto flex-grow-1 mx-2" style="height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 70%"></div>
+                          </div>
+                          <span>70 %</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                          <i class="fab fa-safari text-primary me-2"></i>
+                          <span>Safari</span>
+                          <div class="progress ms-auto flex-grow-1 mx-2" style="height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 76%"></div>
+                          </div>
+                          <span>76 %</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title d-flex justify-content-between align-items-center">
+                        Visitors Source
+                        <i class="fas fa-ellipsis-v text-muted"></i>
+                      </h5>
+                      <div style="height: 150px;">
+                        <canvas id="visitorsSourceChart"></canvas>
+                      </div>
+                      <div class="d-flex justify-content-center mt-3">
+                        <div class="me-3">
+                          <i class="fas fa-circle text-primary me-1"></i>
+                          <span>Social</span>
+                        </div>
+                        <div class="me-3">
+                          <i class="fas fa-circle text-info me-1"></i>
+                          <span>Direct</span>
+                        </div>
+                        <div>
+                          <i class="fas fa-circle text-secondary me-1"></i>
+                          <span>Others</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Setup responsive chart options
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    };
+
+    // Main Visitors Chart
+    const visitorsChartCtx = document.getElementById('visitorsChart').getContext('2d');
+    const visitorsChart = new Chart(visitorsChartCtx, {
+      type: 'line',
+      data: {
+        labels: ['01 Jan', '02 Jan', '03 Jan', '04 Jan', '05 Jan', '06 Jan', '07 Jan', '08 Jan', '09 Jan', '10 Jan', '11 Jan', '12 Jan'],
+        datasets: [{
+          label: 'Visitors',
+          data: [65, 45, 75, 90, 80, 55, 30, 50, 80, 70, 55, 60],
+          borderColor: '#0d6efd',
+          backgroundColor: 'rgba(13, 110, 253, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          y: {
+            beginAtZero: false
+          }
+        }
+      }
+    });
+
+    // User Activity Chart
+    const userActivityChartCtx = document.getElementById('userActivityChart').getContext('2d');
+    const userActivityChart = new Chart(userActivityChartCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            label: 'This Month',
+            data: [65, 40, 65, 50, 75, 60],
+            backgroundColor: '#0d6efd',
+            barPercentage: 0.6,
+            categoryPercentage: 0.5
+          },
+          {
+            label: 'Previous Month',
+            data: [40, 30, 50, 35, 60, 40],
+            backgroundColor: '#e9ecef',
+            barPercentage: 0.6,
+            categoryPercentage: 0.5
+          }
+        ]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 80
+          }
+        }
+      }
+    });
+
+    // New Visitors Chart
+    const newVisitorsChartCtx = document.getElementById('newVisitorsChart').getContext('2d');
+    const newVisitorsChart = new Chart(newVisitorsChartCtx, {
+      type: 'line',
+      data: {
+        labels: ['', '', '', '', '', ''],
+        datasets: [{
+          label: 'Visitors',
+          data: [10, 30, 20, 40, 30, 40],
+          borderColor: '#0d6efd',
+          backgroundColor: 'transparent',
+          tension: 0.4,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          x: {
+            display: false
+          },
+          y: {
+            display: false
+          }
+        }
+      }
+    });
+
+    // Visitors Source Chart
+    const visitorsSourceChartCtx = document.getElementById('visitorsSourceChart').getContext('2d');
+    const visitorsSourceChart = new Chart(visitorsSourceChartCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Social', 'Direct', 'Others'],
+        datasets: [{
+          data: [60, 30, 10],
+          backgroundColor: ['#0d6efd', '#0dcaf0', '#adb5bd'],
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        ...commonOptions,
+        cutout: '70%'
+      }
+    });
+
+    // Handle window resize to make charts responsive
+    window.addEventListener('resize', function() {
+      visitorsChart.resize();
+      userActivityChart.resize();
+      newVisitorsChart.resize();
+      visitorsSourceChart.resize();
+    });
+  });
+</script>
+</body>
+</html>

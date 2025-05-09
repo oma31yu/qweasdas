@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Layout</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: black;
+      font-family: sans-serif;
+      color: lime;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      height: 60px;
+      border-radius: 12px;
+      flex: 1;
+    }
+
+    .green { background: #00ffbb; }
+    .blue { background: #66ccff; flex: 2; }
+    .red { background: #ff6666; }
+    .gray { background: #ccc; width: 100%; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .row {
+        flex-direction: column;
+      }
+      .box {
+        width: 100% !important;
+        flex: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Row 1: 🟩 🟩 🟦 -->
+    <div class="row">
+      <div class="box green"></div>
+      <div class="box green"></div>
+      <div class="box blue"></div>
+    </div>
+    <!-- Row 2: 🟥 🟥 -->
+    <div class="row">
+      <div class="box red"></div>
+      <div class="box red"></div>
+    </div>
+    <!-- Row 3: ⬜ -->
+    <div class="row">
+      <div class="box gray"></div>
+    </div>
+  </div>
+</body>
+</html>

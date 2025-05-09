@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Upload</title>
+</head>
+<body>
+  <h2>FileReader</h2>
+  <input type="file" id="imageInput" accept="image/*">
+  <br><br>
+  <img id="preview" width="300"/>
+
+  <script>
+    document.getElementById('imageInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById('preview').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>

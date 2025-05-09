@@ -1,0 +1,601 @@
+define('common/analytics/gtm-tracker-service',
+    [
+        'google-analytics',
+        'common/analytics/gtm-tracker-constants',
+        'common/analytics/analytics-helper'
+    ],
+    function (gtm, trackerConstants, AnalyticsHelper) {
+        'use strict';
+
+        var gtmTrackerService = {
+            gtm: gtm,
+            initialized: false,
+            proxy: false,
+            userData: {},
+
+            /**
+             * Initializes the Google Tag Manager (GTM) tracking.
+             *
+             * This method injects the GTM script tag into the HTML document to set up tracking. The GTM script
+             * URL can be customized with optional parameters like tracking authorization and preview mode.
+             * Once initialized, the `initialized` property of the module is set to `true`.
+             *
+             * @param {Object} settings - Configuration settings for GTM initialization.
+             * @param {string} settings.trackingId - The GTM container ID used for tracking (e.g., 'GTM-XXXXX').
+             * @param {string} [settings.trackingAuth] - Optional tracking authorization token for GTM.
+             * @param {string} [settings.trackingPreview] - Optional parameter to enable GTM preview mode.
+             *
+             * @throws {Error} Throws an error if the tracking ID is not provided or is an empty string.
+             *
+             * @example
+             * init({
+             *     trackingId: 'GTM-XXXXX',
+             *     trackingAuth: 'your_auth_token',
+             *     trackingPreview: 'env-xx'
+             * });
+             */
+            init: function (settings) {
+                if (typeof settings.trackingId === 'string' && settings.trackingId !== '') {
+                    (function (w, d, s, l, i) {
+                        w[l] = w[l] || [];
+                        w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+                        var f = d.getElementsByTagName(s)[0], j = d.createElement(s),
+                            dl = l !== 'dataLayer' ? '&l=' + l : '';
+                        j.async = true;
+                        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl
+                            + (settings.trackingAuth ? '&gtm_auth=' + settings.trackingAuth : '')
+                            + (settings.trackingPreview ? '&gtm_preview=' + settings.trackingPreview : '')
+                            + '&gtm_cookies_win=x';
+                        f.parentNode.insertBefore(j, f);
+                    })(window, document, 'script', 'dataLayer', settings.trackingId);
+
+                    this.initialized = true;
+                } else {
+                    throw new Error('Module: common/analytics/gtm-tracker-service. Method: init. Container ID not provided.');
+                }
+            },
+
+            /**
+             * Sets up a custom sending mechanism for proxy.
+             *
+             * This method configures a custom sending task in the specified GTM tracker to send hits via a proxy
+             * rather than the default mechanism.
+             *
+             * @example
+             * proxySendSetup();
+             */
+            proxySendSetup: function () {
+                var tracker = gtmTrackerService.gtm.getByName(trackerConstants.viaproxy);
+
+                tracker.set('sendHitTask', function (model) {
+
+                    var payLoad = model.get('hitPayload'),
+                        request = new XMLHttpRequest(),
+                        hitPath = gtmTrackerService.proxy;
+
+                    request.open('get', hitPath + '?' + payLoad, true);
+                    request.send();
+                });
+            },
+
+            /**
+             * Sends a hit (such as a pageview or event) to the Google Analytics Tracker.
+             *
+             * If a proxy is specified, the function first sets up proxy sending using `proxySendSetup`.
+             * The hit is then dispatched using the proper tracker method.
+             *
+             * @param {Object} parameters - Object that describes the hit to be sent.
+             *
+             * @example
+             * send({
+             *     hitType: 'pageview',
+             *     category: 'homepage',
+             *     action: 'view'
+             * });
+             */
+            send: function (parameters) {
+                if (this.proxy) {
+                    this.proxySendSetup();
+                }
+                this.sendHitTypeWithProperTracker(parameters);
+            },
+
+            /**
+             * Renames the dimension names provided to their respective GTM (Google Tag Manager) names.
+             *
+             * This method takes an object of dimensions and renames each dimension based on a predefined mapping.
+             * If a dimension in the input does not have a mapped name, it is ignored.
+             *
+             * @param {Object} dimensions - Object containing dimensions to be renamed.
+             * @return {Object} - Returns an object with dimensions mapped to their GTM names.
+             *
+             * @example
+             * renameDimensions({ dimension1: 'sampleValue' });
+             */
+            renameDimensions: function (dimensions) {
+                var renamedDimensions = {};
+
+                // Loop over the dimensions
+                for (var key in dimensions) {
+                    // Check if the dimension name exists in the mapping
+                    if (key in trackerConstants.dimensionsMapping) {
+                        // If it does, use the mapped dimension name
+                        var newKey = trackerConstants.dimensionsMapping[key];
+                        renamedDimensions[newKey] = dimensions[key];
+                    }
+                }
+                return renamedDimensions;
+            },
+
+            /**
+             * Processes custom dimensions and maps them to their corresponding names in GTM (Google Tag Manager).
+             *
+             * @param {Object} parameters - Object that describes the event.
+             * @return {Object} - Returns an object of custom dimensions with names mapped to GTM.
+             *
+             * @example
+             * handleCustomDimensionsNames({
+             *     customDimension: { dimension1: 'sampleValue' }
+             * });
+             */
+            handleCustomDimensionsNames: function (parameters) {
+                // Check if parameters is an object and not null
+                if (typeof parameters === 'object' && parameters !== null) {
+                    if (parameters.hasOwnProperty('customDimension')) {
+                        return this.renameDimensions(parameters.customDimension);
+                    }
+                }
+                return {};
+            },
+
+            /**
+             * Sets dimensions for all Google Analytics trackers.
+             *
+             * The function processes the provided dimensions, renames them for GTM, and then sends them
+             * to the GTM data layer.
+             *
+             * @param {Object} dimensions - Dimensions to set for Google Analytics Tracker.
+             *
+             * @example
+             * setDimensions({ dimension1: 'sampleValue' });
+             */
+            setDimensions: function (dimensions) {
+                // Check if dimensions is an object and not null
+                if (typeof dimensions === 'object' && dimensions !== null) {
+                    var renamedDimensions = this.renameDimensions(dimensions);
+                    this.trackPageView(renamedDimensions);
+                }
+            },
+
+            /**
+             * Pushes an event to the Google Tag Manager data layer.
+             *
+             * The function sends a provided event to the GTM data layer if the analytics have been initialized.
+             *
+             * @param {Object} objectToSend - Object describing the event to be sent to GTM.
+             *
+             * @example
+             * sendToDataLayer({ event: 'pageview', value: 'homepage' });
+             */
+            sendToDataLayer: function (objectToSend) {
+                if (this.initialized) {
+                    window.dataLayer.push(objectToSend);
+                }
+            },
+
+            /**
+             * Sends the specified hit type to Google Analytics using the appropriate tracker.
+             *
+             * This function handles the dispatch of different types of hits (e.g., page views, events) to Google Analytics.
+             * Depending on the hit type provided in the `parameters` argument, the function will call the
+             * corresponding method to handle that hit type.
+             *
+             * Only 'pageview' and 'event' hit types are currently supported. If no tracker is provided,
+             * the hit is sent directly to Google Analytics. If a tracker is provided, the hit is routed
+             * through that tracker.
+             *
+             * @param {Object} parameters - Object containing details about the hit to be sent.
+             * @param {String} parameters.hitType - The type of hit. Supported values are 'pageview' and 'event'.
+             * @param {String} [parameters.action] - For `parameters.hitType` = 'event'. Describes the type of interaction (e.g., click).
+             * @param {String} [parameters.category] - For `parameters.hitType` = 'event'. Typically, the object interacted with (e.g., button).
+             * @param {String} [parameters.label] - For `parameters.hitType` = 'event'. Categorizes the event (e.g., nav buttons).
+             * @param {Number} [parameters.value] - For `parameters.hitType` = 'event'. Must be non-negative. Represents counts (e.g., clicked 4 times).
+             *
+             * @throws Will throw an error if `parameters.hitType` is missing or unsupported.
+             *
+             * @example
+             * sendHitTypeWithProperTracker({
+             *     hitType: 'event',
+             *     action: 'click',
+             *     category: 'nav button',
+             *     label: 'homepage',
+             *     value: 1
+             * });
+             */
+            sendHitTypeWithProperTracker: function (parameters) {
+                if (!parameters.hasOwnProperty('hitType')) {
+                    throw new Error('Module: common/analytics/analytics. @private Method: sendGTM. parameters object is missing the required hitType property!');
+                }
+
+                switch (parameters.hitType) {
+                    case 'initData':
+                        this.initData(parameters);
+                        break;
+                    case 'pageview':
+                        this.trackPageView(parameters);
+                        break;
+                    case 'event':
+                        this.trackEvent(parameters);
+                        break;
+                    default:
+                        throw new Error('Module: common/analytics/analytics. @private Method: sendGTM. ' + parameters.hitType + ' is not supported hitType (@param "parameters.hitType")!');
+                }
+            },
+
+            /**
+             * Tracks a page view event and sends relevant data to the Google Tag Manager data layer.
+             *
+             * This function gathers information about a page view, both from provided parameters and
+             * custom dimensions derived from those parameters. The data is then combined with some
+             * default settings and pushed to the dataLayer. The function ensures that the 'login_session_id'
+             * event has been sent before proceeding to track the page view. This is achieved through the
+             * `waitForEventInDataLayer` function, which checks for the presence of the 'login_session_id' event
+             * in the dataLayer. After tracking the page view, it also calls the 'sendUserSessionContext' function.
+             *
+             * @param {Object} parameters - An object containing various properties to track, such as:
+             *                            product_id, product_name, product_model_name, product_platform_code,
+             *                            course_id, course_name, course_options, content_id, content_id_type,
+             *                            and value. Any missing properties are defaulted to null or a
+             *                            constant value.
+             *
+             * @example
+             * trackPageView({
+             *     product_id: '12345',
+             *     product_name: 'Sample Product',
+             *     course_id: '67890',
+             *     content_id: 'abcde',
+             *     value: 'sampleValue'
+             * });
+             */
+            trackPageView: function(parameters) {
+                var that = this;
+
+                function sendPageView() {
+                    var customDimensions = that.handleCustomDimensionsNames(parameters);
+
+                    var objectToSend = {
+                        event: 'pageview',
+                        product_model_name: trackerConstants.variables.product_model_name,
+                        product_platform_code: trackerConstants.variables.product_platform_code,
+                        message_id: AnalyticsHelper.uuidv4() || null,
+                        value: parameters.value || null
+                    };
+                    if (parameters.content_id){
+                        objectToSend.content_id = parameters.content_id.toString() || null;
+                    }
+
+                    if (parameters.content_id_type){
+                        objectToSend.content_id_type = parameters.content_id_type.toString() || null;
+                    }
+
+                    var analyticsTime = AnalyticsHelper.getAnalyticsTime();
+                    Object.assign(objectToSend, analyticsTime);
+
+                    if (typeof customDimensions === 'object' && !AnalyticsHelper.isEmptyObject(customDimensions)) {
+
+                        if (customDimensions.product_name) {
+                            objectToSend.product_name = customDimensions.product_name;
+                        }
+
+                        if (customDimensions.product_id) {
+                            objectToSend.product_id = customDimensions.product_id.toString();
+                        }
+
+                        if (customDimensions.course_id) {
+                            objectToSend.course_id = customDimensions.course_id.toString();
+                        }
+
+                        objectToSend.course_name = customDimensions.course_name;
+                        objectToSend.course_options = AnalyticsHelper.convertBooleanValuesToString(customDimensions.course_options);
+                        delete customDimensions.group_source_id;
+                        delete customDimensions.group_name;
+                        delete customDimensions.group_options;
+                        delete customDimensions.variant_source_id;
+                        delete customDimensions.course_options;
+
+                        Object.assign(objectToSend, customDimensions);
+                    }
+
+                    // Add properties only if they exist in 'parameters'
+                    if (parameters.course_id) {
+                        objectToSend.course_id = parameters.course_id.toString();
+                    }
+                    if (parameters.course_name) {
+                        objectToSend.course_name = parameters.course_name;
+                    }
+                    if (parameters.course_options) { // Assuming this is the correct property name
+                        objectToSend.course_options = AnalyticsHelper.convertBooleanValuesToString(parameters.course_options);
+                    }
+                    if (parameters.content_id) {
+                        objectToSend.content_id = parameters.content_id.toString();
+                    }
+                    if (parameters.content_id_type) {
+                        objectToSend.content_id_type = parameters.content_id_type;
+                    }
+                    if (parameters.product_id) {
+                        objectToSend.product_id = parameters.product_id.toString();
+                    }
+                    if (parameters.product_name) {
+                        objectToSend.product_name = parameters.product_name;
+                    }
+
+                    that.sendToDataLayer(objectToSend);
+                    that.sendUserSessionContext();
+                }
+                this.waitForEventInDataLayer('login_session_id', 20, 200, function(success) {
+                    if (success) {
+                        sendPageView();
+                    }
+                }.bind(this));
+            },
+
+            /**
+             * Tracks and sends a user interaction event.
+             *
+             * This method processes the given event parameters, consolidates them with custom dimensions and data
+             * from a pageview event in the dataLayer, then sends the event to the dataLayer. Before sending,
+             * it checks if a pageview event exists in the dataLayer by polling for it up to a certain number
+             * of times. If the pageview event is found, the user interaction event is then sent to the dataLayer.
+             *
+             * @param {Object} parameters - The parameters of the event to be tracked. Expected properties include:
+             *   - category: The event category.
+             *   - action: The event action.
+             *   - label: The event label.
+             *   - value: The event value.
+             *   - And other potential custom dimensions.
+             *
+             * @throws {Error} Throws an error if the provided parameters are not an object.
+             */
+            trackEvent: function(parameters) {
+                if (typeof parameters !== 'object' || parameters === null) {
+                    throw new Error("Provided parameters is not an object.");
+                }
+
+                var customDimensions = this.handleCustomDimensionsNames(parameters);
+                var eventData = this.getEventDataFromDataLayer("pageview");
+                var objectToSend = {
+                    event: 'user_interaction',
+                    event_category: parameters.category || null,
+                    event_action: parameters.action || null,
+                    event_label: parameters.label || null,
+                    value: parameters.value || null
+                };
+
+                if (eventData && eventData.hasOwnProperty('gtm.uniqueEventId')) {
+                    delete eventData['gtm.uniqueEventId'];
+                }
+
+                // Add eventData pageview data to the object if the key doesn't exist in customDimensions
+                for (var key in eventData) {
+                    if (eventData.hasOwnProperty(key) && !customDimensions.hasOwnProperty(key)) {
+                        var value = eventData[key];
+                        // Check if the value is a number
+                        if (typeof value === 'number') {
+                            // Convert number to string
+                            objectToSend[key] = value.toString();
+                        } else if (typeof value === 'boolean') {
+                            // Keep boolean as it is
+                            objectToSend[key] = AnalyticsHelper.convertBooleanValuesToString(value);
+                        } else {
+                            // Use the value as is for other types
+                            objectToSend[key] = value;
+                        }
+                    }
+                }
+
+
+
+                // Add customDimensions data to the object if the key doesn't exist in eventData
+                for (var keyDimension in customDimensions) {
+                    if (customDimensions.hasOwnProperty(keyDimension) && customDimensions[keyDimension] !== null && customDimensions[keyDimension] !== undefined) {
+                        var valueDimension = customDimensions[keyDimension];
+                        // Check if the value is a number
+                        if (typeof valueDimension === 'number') {
+                            // Convert number to string
+                            objectToSend[keyDimension] = valueDimension.toString();
+                        } else if (typeof valueDimension === 'boolean') {
+                            // Keep boolean as it is
+                            objectToSend[keyDimension] = AnalyticsHelper.convertBooleanValuesToString(valueDimension);
+                        } else {
+                            // Use the value as is for other types
+                            objectToSend[keyDimension] = valueDimension;
+                        }
+                    }
+                }
+
+
+                if (eventData && eventData.hasOwnProperty('course_options')) {
+                    delete objectToSend.course_options;
+                    objectToSend.course_options = AnalyticsHelper.convertBooleanValuesToString(eventData.course_options);
+                    delete eventData.course_options;
+                }
+
+                Object.assign(objectToSend, AnalyticsHelper.getAnalyticsTime());
+
+                this.waitForEventInDataLayer('pageview', 20, 200, function(success) {
+                    if (success) {
+                        this.sendToDataLayer(objectToSend);
+                    }
+                }.bind(this));
+            },
+
+            /**
+             * Retrieves specific event data from the dataLayer.
+             *
+             * This method searches through the dataLayer for a specified event and returns its associated data.
+             * It loops through each item in the dataLayer and checks if the event name matches the desired event.
+             * If a match is found, it extracts all properties of the event data except for the 'event' property itself.
+             *
+             * @param {string} event - The name of the event whose data is to be retrieved from the dataLayer.
+             *
+             * @returns {Object} An object containing all the properties and values of the specified event.
+             *                   If the event is not found, it returns an empty object.
+             */
+            getEventDataFromDataLayer: function (event) {
+                var dataLayer = window.dataLayer || [];
+                var eventData = null;
+                for (var i = 0; i < dataLayer.length; i++) {
+                    var item = dataLayer[i];
+                    if (item.event && item.event === event) {
+                        eventData = item;
+                        break;
+                    }
+                }
+
+                if (eventData) {
+                    var result = {};
+                    for (var key in eventData) {
+                        if (eventData.hasOwnProperty(key) && key !== 'event') {
+                            result[key] = eventData[key];
+                        }
+                    }
+                    return result;
+                }
+
+                return {};
+            },
+
+            /**
+             * Initializes analytics data and sends it to the dataLayer.
+             *
+             * This method prepares analytics data for initialization and pushes it to the dataLayer.
+             * It merges the analytics timestamp with the provided parameters, sets 'person_id_type' from constants,
+             * and sanitizes the parameters by setting undefined, "undefined", or empty strings to null.
+             * If a 'hitType' property exists, it's removed from the parameters.
+             * It also waits for the 'gtm.load' event in the dataLayer, and if detected, pushes the sanitized parameters.
+             * Additionally, it sets the sanitized parameters in the 'userData'.
+             *
+             * @param {Object} parameters - An object containing event-specific details, including 'login_session_id'.
+             */
+            initData: function(parameters) {
+                var analyticsTime = AnalyticsHelper.getAnalyticsTime();
+                parameters = Object.assign(parameters, analyticsTime);
+                parameters.person_id_type = trackerConstants.variables.person_id_type;
+
+                for (var key in parameters) {
+                    if (parameters.hasOwnProperty(key) && (parameters[key] === undefined || parameters[key] === "undefined" || parameters[key] === "")) {
+                        parameters[key] = null;
+                    }
+                }
+
+                delete parameters.hitType;
+
+                this.waitForEventInDataLayer('gtm.load', 20, 200, function(success) {
+                    if (success) {
+                        window.dataLayer.push(parameters); // Push initData to the dataLayer
+                        this.userData = parameters;
+                    }
+                }.bind(this));
+            },
+
+            /**
+             * Sends the user session context to the dataLayer.
+             *
+             * This method pushes an event named "usersessioncontext" to the dataLayer,
+             * accompanied by the provided analytics time. Additionally, it stores the
+             * 'login_session_id' from the parameters to the session storage under the
+             * key 'usersessioncontext'.
+             */
+            sendUserSessionContext: function() {
+                var usersessioncontext = sessionStorage.getItem('usersessioncontext');
+                if (this.userData.login_session_id && (!usersessioncontext || usersessioncontext !== this.userData.login_session_id)) {
+                    var analyticsTime = AnalyticsHelper.getAnalyticsTime();
+                    var sessionContextData = {
+                        event: "usersessioncontext",
+                        login_session_id: this.userData.login_session_id,
+                        person_id: this.userData.person_id.toString()
+                    };
+                    Object.assign(sessionContextData, analyticsTime);
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push(sessionContextData);
+                }
+                sessionStorage.setItem('usersessioncontext', this.userData.login_session_id);
+            },
+
+            /**
+             * Method sends the user session context. This method waits for a specific event
+             * in the dataLayer by repeatedly polling until the event is found or the maximum
+             * number of retries is reached.
+             *
+             * @param {string} eventName - Name of the event to look for in the dataLayer.
+             * @param {number} maxPollingRetries - The maximum number of times the function
+             *                                     should retry to find the event in the dataLayer.
+             * @param {number} retryInterval - The time interval (in milliseconds) between each
+             *                                 polling attempt to find the event in the dataLayer.
+             * @param {function(boolean): void} callback - Callback function to be executed after
+             *                                             polling. It accepts a boolean parameter
+             *                                             indicating the status: true if the event
+             *                                             was found and false if not.
+             */
+            waitForEventInDataLayer: function(eventName, maxPollingRetries, retryInterval, callback) {
+                var retries = 0;
+                var that = this;
+                function pollForEvent() {
+                    if (retries > maxPollingRetries) {
+                        callback(false); // Max retries reached
+                        return;
+                    }
+
+                    if (that.doesEventExistInDataLayer(eventName)) {
+                        callback(true); // Event exists
+                        return;
+                    }
+
+                    retries++;
+                    setTimeout(pollForEvent, retryInterval);
+                }
+
+                pollForEvent();
+            },
+
+            /**
+             * Checks whether a specific event or property exists in the dataLayer.
+             *
+             * The function can be used in two ways:
+             * 1. By providing the name of an event. It checks if an event with the provided name exists.
+             * 2. By providing 'login_session_id' as the event name. It checks if there's an object
+             *    with the 'login_session_id' property in the dataLayer.
+             *
+             * @param {string} eventName - The name of the event or the string 'login_session_id'
+             *                             to check for the presence of the 'login_session_id' property.
+             *
+             * @returns {boolean} Returns true if the specified event or property is found in
+             *                    the dataLayer, otherwise false.
+             */
+            doesEventExistInDataLayer: function(eventName) {
+                window.dataLayer = window.dataLayer || [];
+
+                switch (eventName) {
+                    case 'login_session_id':
+                        for (var i = 0; i < window.dataLayer.length; i++) {
+                            if (window.dataLayer[i].hasOwnProperty('login_session_id')) {
+                                return true;
+                            }
+                        }
+                        break;
+
+                    default:
+                        for (var j = 0; j < window.dataLayer.length; j++) {
+                            if (window.dataLayer[j].event === eventName) {
+                                return true;
+                            }
+                        }
+                        break;
+                }
+
+                return false;
+            }
+
+        };
+        return gtmTrackerService;
+    });

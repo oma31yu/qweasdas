@@ -1,0 +1,249 @@
+/**
+ * Analytics module is responsible for:
+ *  - initialization of vendors script for gathering user interaction data
+ *  - provide common API for using vendors scripts
+ *
+ * NOTE:
+ *  Google Analytics is more common to use so the naming convention for this adapter will follow mostly Google Analytics API.
+ */
+define('common/analytics/analytics',
+    [
+        'common/analytics/sdk-tracker-service',
+        'common/analytics/gtm-tracker-service',
+    ],
+
+    function (sdkTrackerService, gtmTrackerService) {
+        'use strict';
+
+        /**
+         * AnalyticsEvent - Object describes event, target and values to send.
+         *
+         * @typedef {Object} AnalyticsEvent
+         * @property {String|Function} action - The type of interaction (e.g. click). Could be passed as String or callback function that will return calculated action.
+         * @property {String|Function} category - Typically the object that was interacted with (e.g. button). Could be passed as String or callback function that will return calculated category.
+         * @property {String|Function} [label] - Useful for categorizing events (e.g. nav buttons). Could be passed as String or callback function that will return calculated label.
+         * @property {Function} [sendCondition] - Callback for controlling flow of sending events. Could be used for example to send event only on specific state of button.
+         * @property {String|Object} target - CSS Selector for picking up an element or elements.
+         * @property {String} type - DOM Event
+         * @property {Number|Function} [value] - Values must be non-negative. Useful to pass counts (e.g. 4 times). Could be passed as Number or callback function that will return calculated value.
+         */
+
+        var analytics = {};
+
+        /**
+         * Method attaches specified events to specified elements.
+         *
+         * @param {Array} events - Array with objects with description of events and elements to which they should be attached.
+         */
+        analytics.attachEventsToElements = function (events) {
+
+            if (Array.isArray(events)) {
+                for (var i = 0, len = events.length; i < len; i++) {
+                    analytics.attachEventToElement(events[i]);
+                }
+            } else {
+                throw new Error('Module: common/analytics/analytics. Method: attachEventsToElements. Given @param "events" must be an Array!');
+            }
+
+        };
+
+        /**
+         * Method initialize vendor scripts for gathering user interaction data.
+         *
+         * @param {Object} settings - object with settings for trackers to start initialization. If there is no information about tracker (undefined) it is treated
+         * as tracker should not be initialized.
+         */
+        analytics.init = function (settings) {
+            var trackerObj, tracker;
+
+            for (tracker in this.trackers) {
+                if (settings[tracker] !== undefined && this.trackers.hasOwnProperty(tracker)) {
+                    trackerObj = this.trackers[tracker];
+
+                    trackerObj.init(settings[tracker]);
+                    trackerObj.initialized = true;
+                }
+            }
+        };
+
+        /**
+         * Method sends a hit to a selected or all INITIALIZED trackers.
+         *
+         * @param {Object} settings - Object that describes a Hit.
+         * @param {string} [selectedTracker=""] - (Optional) Name of the selected tracker. If provided, the hit will be sent only to this tracker.
+         */
+        analytics.send = function (settings, selectedTracker) {
+            selectedTracker = selectedTracker || "";
+
+            if (selectedTracker) {
+                if (this.trackers.hasOwnProperty(selectedTracker) && this.trackers[selectedTracker].initialized) {
+                    this.trackers[selectedTracker].send(settings);
+                }
+            } else {
+                var tracker;
+                for (tracker in this.trackers) {
+                    if (this.trackers.hasOwnProperty(tracker) && this.trackers[tracker].initialized) {
+                        this.trackers[tracker].send(settings);
+                    }
+                }
+            }
+        };
+
+
+
+        /**
+         * Method sets dimensions/parameters for a selected or all INITIALIZED trackers.
+         *
+         * @example of @param dimensions:
+         *  dimensions = {
+         *      'dimension1': 'Teacher',
+         *      'dimension2': 'Organization Name',
+         *      '&uid': 123456789
+         *  };
+         *
+         * @param {Object} dimensions - dimensions/properties to set for the selected or all initialized trackers
+         * @param {string} [selectedTracker=""] - (Optional) Name of the selected tracker. If provided, dimensions will be set only for this tracker.
+         */
+        analytics.setDimensions = function(dimensions, selectedTracker) {
+            selectedTracker = selectedTracker || "";
+
+            if (selectedTracker) {
+                if (this.trackers.hasOwnProperty(selectedTracker) && this.trackers[selectedTracker].initialized) {
+                    this.trackers[selectedTracker].setDimensions(dimensions);
+                }
+            } else {
+                var tracker;
+                for (tracker in this.trackers) {
+                    if (this.trackers.hasOwnProperty(tracker) && this.trackers[tracker].initialized) {
+                        this.trackers[tracker].setDimensions(dimensions);
+                    }
+                }
+            }
+        };
+
+
+
+        /**
+         * Method attaches event to specified element.
+         *
+         * @param {AnalyticsEvent} event
+         * @private
+         */
+        analytics.attachEventToElement = function (event) {
+            var isBubbling = false,
+                targets;
+
+            // If event.target is an object this means that event bubbling will be used to capture the event
+            if (event.target !== null && typeof event.target === 'object') {
+                isBubbling = true;
+            }
+
+            targets = analytics.getTargets(event.target, isBubbling);
+
+            if (targets.length > 0) {
+                for (var i = 0, len = targets.length; i < len; i++) {
+                    targets[i].addEventListener(event.type, analytics.createEventCallback(event, targets[i], i, isBubbling));
+                }
+            }
+        };
+
+        /**
+         * Method creates event callback.
+         *
+         * @param {AnalyticsEvent} event
+         * @param {Object} element - DOM Element to which event is attached.
+         * @param {Number} index - Index of the element in returned array of elements of the same CSS Selector. Could be used to differ the same elements in description.
+         * @param {Boolean} isBubbling - Determines if event bubbling is used to capture an event.
+         * @return {Object}
+         * @private
+         */
+        analytics.createEventCallback = function (event, element, index, isBubbling) {
+
+            return function (ev) {
+                var targetEl = element,
+                    targetIndex = index,
+                    bubbledTarget = null,
+                    isValidTarget = true,
+                    objectToSend;
+
+                if (isBubbling) {
+                    bubbledTarget = analytics.getBubbledTarget(ev, event, element);
+
+                    if (bubbledTarget !== null) {
+                        targetEl = bubbledTarget.element;
+                        targetIndex = bubbledTarget.index;
+                    } else {
+                        isValidTarget = false;
+                    }
+                }
+
+                if (isValidTarget) {
+                    if (event.sendCondition === undefined || event.sendCondition(event, targetEl, targetIndex)) {
+
+                        objectToSend = {
+                            hitType: 'event',
+                            category: typeof event.category === 'function' ? event.category(event, targetEl, targetIndex) : event.category,
+                            action: typeof event.action === 'function' ? event.action(event, targetEl, targetIndex) : event.action,
+                            label: typeof event.label === 'function' ? event.label(event, targetEl, targetIndex) : event.label,
+                            value: typeof event.value === 'function' ? event.value(event, targetEl, targetIndex) : event.value
+                        };
+
+                        if (typeof event.customDimension === "function") {
+                            objectToSend.customDimension = {};
+                            Object.assign(objectToSend.customDimension, event.customDimension());
+                        }
+
+                        analytics.send(objectToSend);
+                    }
+                }
+            };
+        };
+
+        /**
+         * Method tries to get target element triggered by some DOM Event (e.g. click). It checks if it is the one that we are looking for.
+         * This is a helper for basic implementation of event bubbling support (like jquery 'live' method).
+         *
+         * @param {Object} DOMEv - DOM Event
+         * @param {Object} analyticsEvent - Analytics Event Object
+         * @param {Object} element - DOM Element
+         * @returns {Object|Null}
+         * @private
+         */
+        analytics.getBubbledTarget = function (DOMEv, analyticsEvent, element) {
+            var bubbledTarget = element.querySelectorAll(analyticsEvent.target.element);
+            for (var i = 0, len = bubbledTarget.length; i < len; i++) {
+                if (bubbledTarget[i] === DOMEv.target) {
+                    return {
+                        index: i,
+                        element: bubbledTarget[i]
+                    };
+                }
+            }
+
+            return null;
+        };
+
+        /**
+         * Method returns list of DOM Nodes specified by given @param target.
+         *
+         * @param {Object|String} target - (String) CSS Selector or Object with CSS Selectors for parent and children in event bubbling.
+         * @param {Boolean} isBubbling
+         * @returns {NodeList}
+         * @private
+         */
+        analytics.getTargets = function (target, isBubbling) {
+            var CSSSelector;
+
+            CSSSelector = isBubbling ? target.parent : target;
+
+            return document.querySelectorAll(CSSSelector);
+        };
+
+        analytics.trackers  = {
+            sdk: sdkTrackerService,
+            gtm: gtmTrackerService
+        };
+
+        return analytics;
+
+    });

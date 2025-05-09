@@ -1,0 +1,55 @@
+define('common/analytics/gtm-tracker-constants', [], function () {
+    'use strict';
+
+    return {
+        nmelgatracker: 'nmelgatracker',
+        viaproxy : 'viaproxy',
+        // Change this value to match your Google Tag Manager container ID
+        trackingId: 'GTM-NCKFQZL',
+        // Define your data layer constants here
+        events: {
+            buttonClick: 'button_click',
+            formSubmit: 'form_submit',
+            pageView: 'page_view'
+        },
+        dimensionsMapping : {
+            'dimension1': 'person_role_code',
+            'dimension2': 'organization_name',
+            'dimension4': 'organization_id',
+            'dimension5': 'course_id',
+            'dimension6': 'course_name',
+            'dimension7': 'course_options',
+            'dimension8': 'product_id',
+            'dimension9': 'product_name',
+            'dimension10': 'user_first_login_timestamp',
+            'dimension11': 'activity_id',
+            'dimension12': 'activity_version',
+            'dimension13': 'user_rmb_product_ids',
+            'dimension15': 'lti',
+            'dimension16': 'rumba_person_id',
+            'dimension50': 'client_id',
+            'dimension51': 'lti_person_id',
+            'dimension52': 'test_section',
+            'dimension53': 'lti_issuer',
+            'dimension85': 'activity_type',
+            'dimension86': 'activity_area',
+            'dimension87': 'assignment_id',
+            'dimension88': 'user_assignment_id',
+            'dimension89': 'assigned',
+            'dimension90': 'learner_id',
+            'dimension91': 'teacher_id',
+            'dimension94': 'interaction_type',
+            'dimension98': 'item_id',
+            'dimension101': 'item_version',
+            'dimension107': 'deadline'
+        },
+
+        variables: {
+            isLoggedIn: 'isLoggedIn',
+            userId: 'userId',
+            product_platform_code: 'MEL',
+            product_model_name: 'MEL',
+            person_id_type: 'MEL'
+        }
+    };
+});

@@ -1,0 +1,49 @@
+/**
+ * Techer leaving studnet view mode functionality
+ * Fuction prompt teacher when the he leaves form student view mode.
+ */
+$(function () {
+    var tocData, ajaxUrl, courseId, studentViewMode;
+    tocData = $('#tocData');
+    if(tocData){
+        studentViewMode = tocData.data('student-view-mode');
+        courseId = tocData.data('course-id');
+    }
+
+    if (studentViewMode) {
+        ajaxUrl = Routing.generate('products_courses_content_view_changer', {'courseId': courseId});
+        $('#headerMenu a, #breadcrumbs a, .header-controls a, #unitName a').on("click", function(e){
+            e.preventDefault();
+            var clickedElement = $(this),
+                dialogParagraph = '<span>' + ExposeTranslation.trans('courses.leave.student.view.mode') + '</span>';
+
+            $("#alertDialog").html(dialogParagraph).dialog({
+                title: '',
+                buttons: {
+                    OK: {
+                        text:ExposeTranslation.trans('courses.ok'),
+                        "class": 'confirm_dialog_class',
+                        click: function() {
+                            $.ajax({
+                                url: ajaxUrl,
+                                statusCode: {
+                                    200: function() {
+                                        window.location.href = clickedElement.attr('href').replace('/changeView','');
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    Cancel: {
+                        text:ExposeTranslation.trans('courses.cancel'),
+                        click: function() {
+                            $(this).dialog("close");
+                            $(this).html('');
+                        }
+                    }
+                }
+            }).dialogOpen();
+        });
+    }
+});
